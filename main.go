@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,12 +16,17 @@ import (
 )
 
 func main() {
-	fmt.Println("=== Application Starting!!")
-	http.HandleFunc("/hc", healthHandler)
-	http.HandleFunc("/info", infoHandler)
-	http.HandleFunc("/fibo", fiboHandler)
-	http.HandleFunc("/down", downHandler)
-	http.ListenAndServe(":8080", nil)
+	flag.Parse()
+	if flag.Arg(0) == "hc" {
+		fmt.Println("ok")
+	} else {
+		fmt.Println("=== Application API Starting!!")
+		http.HandleFunc("/hc", healthHandler)
+		http.HandleFunc("/info", infoHandler)
+		http.HandleFunc("/fibo", fiboHandler)
+		http.HandleFunc("/down", downHandler)
+		http.ListenAndServe(":8080", nil)
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +85,6 @@ func downHandler(w http.ResponseWriter, r *http.Request) {
 func fibo(n int) int {
 	if n < 2 {
 		return 1
-	} else {
-		return fibo(n-2) + fibo(n-1)
 	}
+	return fibo(n-2) + fibo(n-1)
 }
