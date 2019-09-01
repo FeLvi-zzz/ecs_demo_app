@@ -1,15 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
-	"encoding/json"
-	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
