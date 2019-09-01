@@ -13,5 +13,5 @@ jobs:
       uses: grandcolline/golang-github-actions@versionup
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-        command: fmt
+        command: imports
 
