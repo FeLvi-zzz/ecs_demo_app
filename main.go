@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
