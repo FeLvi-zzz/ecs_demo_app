@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"log"
 	"os"
+	"flag"
 	"strconv"
 	"strings"
 
