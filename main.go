@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"fmt"
 	"strings"
 	"strconv"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
