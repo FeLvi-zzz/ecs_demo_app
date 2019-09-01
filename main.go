@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
