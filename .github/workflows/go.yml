@@ -12,5 +12,6 @@ jobs:
     - name: test
       uses: grandcolline/golang-github-actions@versionup
       with:
-        githubToken: abc
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
         command: fmt
+
