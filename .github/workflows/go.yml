@@ -12,6 +12,6 @@ jobs:
     - name: test
       uses: grandcolline/golang-github-actions@versionup
       with:
-        githubToken: ${{ secrets.GITHUB_TOKEN }}
         command: imports
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
 
