@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"fmt"
 	"strconv"
 	"strings"
 
