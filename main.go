@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 	"strconv"
-	"fmt"
 	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
