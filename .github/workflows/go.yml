@@ -15,5 +15,5 @@ jobs:
         command: lint
         githubToken: ${{ secrets.GITHUB_TOKEN }}
       env:
-        HOGE: "fooooo"
+        HOGE: "fooooo!!"
 
