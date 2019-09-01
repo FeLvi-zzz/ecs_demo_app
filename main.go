@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"log"
-	"os"
 	"flag"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
