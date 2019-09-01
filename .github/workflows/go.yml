@@ -16,6 +16,4 @@ jobs:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
       env:
         HOGE: "fooooo"
-      arg:
-        GO111MODULE: "on"
 
