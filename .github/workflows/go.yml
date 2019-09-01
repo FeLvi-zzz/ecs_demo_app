@@ -11,3 +11,4 @@ jobs:
       uses: grandcolline/golang-github-actions@versionup
       with:
         githubToken: abc
+        command: fmt
