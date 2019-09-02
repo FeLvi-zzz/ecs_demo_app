@@ -8,9 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
-
+	"strconv"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
@@ -42,7 +41,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	doc, _ := svc.GetInstanceIdentityDocument()
 	instanceId := doc.InstanceID
 	// コンテナIDの取得
-	containerId, _ := os.Hostname()
+	containerId, err := os.Hostname()
 	// タスクの取得
 	resp, err := http.Get(os.Getenv("ECS_CONTAINER_METADATA_URI"))
 	if err != nil {
