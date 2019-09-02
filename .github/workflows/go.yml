@@ -14,7 +14,6 @@ jobs:
       with:
         command: sec
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-        flags: "-exclude=G104"
       env:
         HOGE: "fooooo!!"
 
