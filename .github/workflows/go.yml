@@ -1,20 +1,24 @@
-name: Go
+name: golang static check
 on: [pull_request]
 jobs:
-
-  build:
-    name: Build
+  imports:
+    name: Imports
     runs-on: ubuntu-latest
     steps:
-
-    - name: checkout
-      uses: actions/checkout@master
-    - name: test
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        command: imports
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+  sec:
+    name: Sec
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
       uses: grandcolline/golang-github-actions@versionup
       with:
         command: sec
         githubToken: ${{ secrets.GITHUB_TOKEN }}
         flags: "-exclude=G104"
-      env:
-        HOGE: "fooooo!!"
-
