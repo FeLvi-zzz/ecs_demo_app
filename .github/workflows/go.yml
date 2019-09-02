@@ -9,8 +9,48 @@ jobs:
     - name: check
       uses: grandcolline/golang-github-actions@versionup
       with:
-        command: imports
-        githubToken: ${{ secrets.GITHUB_TOKEN }}
+        run: imports
+        token: ${{ secrets.GITHUB_TOKEN }}
+  errcheck:
+    name: Errcheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        run: errcheck
+        token: ${{ secrets.GITHUB_TOKEN }}
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        run: lint
+        token: ${{ secrets.GITHUB_TOKEN }}
+  shadow:
+    name: Shadow
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        run: shadow
+        token: ${{ secrets.GITHUB_TOKEN }}
+  staticcheck:
+    name: StaticCheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        run: staticcheck
+        token: ${{ secrets.GITHUB_TOKEN }}
   sec:
     name: Sec
     runs-on: ubuntu-latest
@@ -22,3 +62,14 @@ jobs:
         command: sec
         githubToken: ${{ secrets.GITHUB_TOKEN }}
         flags: "-exclude=G104"
+  vet:
+    name: Vet
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@versionup
+      with:
+        run: vet
+        token: ${{ secrets.GITHUB_TOKEN }}
+
