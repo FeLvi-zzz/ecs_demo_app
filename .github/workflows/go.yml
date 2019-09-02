@@ -12,7 +12,7 @@ jobs:
     - name: test
       uses: grandcolline/golang-github-actions@versionup
       with:
-        command: lint
+        command: sec
         githubToken: ${{ secrets.GITHUB_TOKEN }}
       env:
         HOGE: "fooooo!!"
