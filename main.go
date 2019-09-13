@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"github.com/gin-gonic/gin"
 	"os"
 	"strconv"
 	"strings"
@@ -31,28 +33,54 @@ func main() {
 		fmt.Println("ok")
 	} else {
 		fmt.Println("=== Application API Starting!!")
-		http.Handle("/",        xray.Handler(xray.NewFixedSegmentNamer("index"),   http.HandlerFunc(notFoundHandler)))
-		http.Handle("/hc",      xray.Handler(xray.NewFixedSegmentNamer("health"),  http.HandlerFunc(healthHandler)))
-		http.Handle("/info",    xray.Handler(xray.NewFixedSegmentNamer("info"),    http.HandlerFunc(infoHandler)))
-		http.Handle("/fibo",    xray.Handler(xray.NewFixedSegmentNamer("fibo"),    http.HandlerFunc(fiboHandler)))
-		http.Handle("/zipcode", xray.Handler(xray.NewFixedSegmentNamer("zipcode"), http.HandlerFunc(zipcodeHandler)))
-		http.Handle("/down",    xray.Handler(xray.NewFixedSegmentNamer("down"),    http.HandlerFunc(downHandler)))
-		http.ListenAndServe(":8080", nil)
+		router := gin.Default()
+
+		router.Use(func(ctx *gin.Context) {
+			TraceSeg(ctx, ctx.Request.URL.Path) //ここで返ってくるcontextを次のハンドラに渡したい…
+			ctx.Next()
+		})
+
+		router.GET("/",        notFoundHandler)
+		router.GET("/hc",      healthHandler)
+		router.GET("/info",    infoHandler)
+		router.GET("/fibo",    fiboHandler)
+		router.GET("/zipcode", zipcodeHandler)
+		router.GET("/down",    downHandler)
+
+		router.Run(":8080")
+
 	}
 }
 
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+func TraceSeg(c context.Context, service string) (*context.Context) {
+	ctx, seg := xray.BeginSegment(c, service)
+	fmt.Println(service)
+	seg.Close(nil)
+
+	return &ctx
+}
+
+func TraceSubSeg(c context.Context, service string) (*context.Context) {
+	ctx, subSeg := xray.BeginSubsegment(c, service)
+	fmt.Println(service)
+	subSeg.Close(nil)
+
+	return &ctx
+}
+
+
+
+func notFoundHandler(ctx *gin.Context) {
 	fmt.Println("--- notFoundHandler")
-	w.WriteHeader(http.NotFound)
-	fmt.Fprint(w, "404 Not Found")
+	ctx.String(404, "404 Not Found!!")
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func healthHandler(ctx *gin.Context) {
 	fmt.Println("--- healthHandler")
-	fmt.Fprint(w, "OK")
+	ctx.String(200, "OK")
 }
 
-func infoHandler(w http.ResponseWriter, r *http.Request) {
+func infoHandler(ctx *gin.Context) {
 	fmt.Println("--- infoHandler")
 	// インスタンスIDの取得
 	sess := session.Must(session.NewSession())
@@ -64,45 +92,44 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	// タスクの取得
 	resp, err := http.Get(os.Getenv("ECS_CONTAINER_METADATA_URI"))
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
 	var metadata interface{}
 	err = json.Unmarshal(body, &metadata)
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
 	taskArn := metadata.(map[string]interface{})["Labels"].(map[string]interface{})["com.amazonaws.ecs.task-arn"].(string)
 	task := strings.Split(taskArn, "/")[1]
 	// レスポンス
-	fmt.Fprint(w, "instanceId: "+instanceId+"\ntask: "+task+"\ncontainerId: "+containerId)
+	ctx.String(200, "instanceId: "+instanceId+"\ntask: "+task+"\ncontainerId: "+containerId)
 }
 
-func fiboHandler(w http.ResponseWriter, r *http.Request) {
+func fiboHandler(ctx *gin.Context) {
 	fmt.Println("--- fiboHandler")
-	n, err := strconv.Atoi(r.URL.Query().Get("n"))
+	n, err := strconv.Atoi(ctx.Query("n"))
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
-	fmt.Fprint(w, strconv.Itoa(n)+"番目のフィボナッチ数は、"+strconv.Itoa(fibo(n)))
+	ctx.String(200, strconv.Itoa(n)+"番目のフィボナッチ数は、"+strconv.Itoa(fibo(n)))
 }
 
-func zipcodeHandler(w http.ResponseWriter, r *http.Request) {
+func zipcodeHandler(ctx *gin.Context) {
 	fmt.Println("--- zipcodeHandler")
+	newCtx := ctx.Request.Context()
 
-	ctx := r.Context()
-
-	zipcode, err := strconv.Atoi(r.URL.Query().Get("zipcode"))
+	zipcode, err := strconv.Atoi(ctx.Query("zipcode"))
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
 
@@ -113,24 +140,29 @@ func zipcodeHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Errorf("[BUG] failed to build request: %s", err)
 		return
 	}
-	resp, err := myClient.Do(req.WithContext(ctx))
 
-	fmt.Fprint(w, "http://zipcloud.ibsnet.co.jp/api/search?zipcode=" + strconv.Itoa(zipcode))
+	// c := (*((*ctx).Request)).Context()
+	// fmt.Println(c)
+
+	resp, err := myClient.Do(req.WithContext(*newCtx))
+
+	ctx.String(200, "http://zipcloud.ibsnet.co.jp/api/search?zipcode=" + strconv.Itoa(zipcode))
 	if err != nil {
-		fmt.Fprint(w, "ERROR")
+		ctx.String(500, "ERROR")
 		return
 	}
 	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
   if err == nil {
-    fmt.Fprint(w, string(b))
+    ctx.String(200, string(b))
   }
 
 }
 
-func downHandler(w http.ResponseWriter, r *http.Request) {
+func downHandler(ctx *gin.Context) {
 	fmt.Println("--- downHandler")
+	ctx.String(500, "DOWN!!!")
 	log.Fatal("DOWN!!!")
 }
 
